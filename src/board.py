@@ -1,7 +1,7 @@
 import numpy as np
 import copy
 
-# Modelo de estado
+# Modelo de solução
 goal_state = [
     [1, 2, 3, 4],
     [5, 6, 7, 8],
@@ -34,6 +34,16 @@ def is_solvable(state):
     row_bottom = 4 - zero_line
 
     return (num_inversions + row_bottom) % 2 == 0
+
+
+#Verifica se alcançou o objetivo
+def is_goal_state(current_state):
+    for i in range(len(current_state)):
+        for j in range(len(current_state[i])):
+            if current_state[i][j] != goal_state[i][j]:
+                print(f"Error in position ({i}, {j}): {current_state[i][j]} != {goal_state[i][j]}")
+                return False
+    return True
 
 
 #Busca uma posição especifica na solução
