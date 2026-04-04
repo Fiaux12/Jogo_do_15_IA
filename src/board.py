@@ -40,18 +40,16 @@ def is_goal_state(current_state):
     for i in range(len(current_state)):
         for j in range(len(current_state[i])):
             if current_state[i][j] != goal_state[i][j]:
-                Exception(f"Error in position ({i}, {j}): {current_state[i][j]} != {goal_state[i][j]}")
                 return False
     return True
 
 
 #Busca uma posição especifica na solução
-def search(value, goal_state):
-    for i in range(len(goal_state)):
-        for j in range(len(goal_state[i])):
-            if goal_state[i][j] == value:
-                return i, j
-    raise Exception('Incorrect state')
+def search(value, state):
+    result = np.argwhere(state == value)
+    if len(result) == 0:
+        raise Exception('Incorrect state')
+    return tuple(result[0])
 
 
 #Distância de Manhattan: h = |x1 - x2| + |y1 - y2|
@@ -62,11 +60,10 @@ def get_distance(current_position, goal_position):
 #Heurística de Manhattan
 def heuristic(current_state):
     total_distance = 0
-    for i in range(len(current_state)):
-        for j in range(len(current_state[i])):
+    for i in range(current_state.shape[0]):
+        for j in range(current_state.shape[1]):
             goal_i, goal_j = search(current_state[i][j], goal_state)
             total_distance += get_distance((i, j), (goal_i, goal_j))
-
     return total_distance
 
 
@@ -82,7 +79,7 @@ def movement_allowed(position, movement):
 
 #Movimenta o Zero criando um novo estado
 def get_next_state(current_state, movement, empty_position):
-    new_state = copy.deepcopy(current_state)
+    new_state = np.copy(current_state)
 
     row, col = empty_position
     d_row, d_col = movement
