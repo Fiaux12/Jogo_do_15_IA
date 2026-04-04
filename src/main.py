@@ -17,13 +17,10 @@ current_state = np.array([
 while not is_solvable(current_state):
     current_state = creat_new_state()
 
+
 # breadth_first_search()
 # depth_first_search()
-
 list_of_states = a_star(current_state)
-
-print("\n")
-
 step = 0
 for state in list_of_states:
     step += 1

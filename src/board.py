@@ -2,12 +2,12 @@ import numpy as np
 import copy
 
 # Modelo de solução
-goal_state = [
+goal_state = np.array([
     [1, 2, 3, 4],
     [5, 6, 7, 8],
     [9, 10, 11, 12],
     [13, 14, 15, 0],
-]
+])
 
 
 #Cria novo estado corrente
@@ -37,11 +37,7 @@ def is_solvable(state):
 
 #Verifica se alcançou o objetivo
 def is_goal_state(current_state):
-    for i in range(len(current_state)):
-        for j in range(len(current_state[i])):
-            if current_state[i][j] != goal_state[i][j]:
-                return False
-    return True
+    return np.array_equal(current_state, goal_state)
 
 
 #Busca uma posição especifica na solução
@@ -79,7 +75,7 @@ def movement_allowed(position, movement):
 
 #Movimenta o Zero criando um novo estado
 def get_next_state(current_state, movement, empty_position):
-    new_state = np.copy(current_state)
+    new_state = current_state.copy()
 
     row, col = empty_position
     d_row, d_col = movement

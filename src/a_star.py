@@ -12,7 +12,8 @@ class Node:
 
 def a_star(initial_state):
     border = [Node(None, 0, heuristic(initial_state), initial_state)]
-
+    visited = set()
+    
     while border:
         node, pos = get_cheapest_border(border)
         if is_goal_state(node.state):
