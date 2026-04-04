@@ -59,7 +59,7 @@ def get_distance(current_position, goal_position):
     return abs(current_position[0] - goal_position[0]) + abs(current_position[1] - goal_position[1])
 
 
-#Heurística de Manhattan: 
+#Heurística de Manhattan
 def heuristic(current_state):
     total_distance = 0
     for i in range(len(current_state)):
