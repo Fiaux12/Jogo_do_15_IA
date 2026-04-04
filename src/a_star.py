@@ -4,4 +4,8 @@ class Node:
         self.cost = cost
         self.heuristic = heuristic
         self.state = state
-    
+
+
+def a_star():
+    print("a estrela")
+
