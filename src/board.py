@@ -9,6 +9,12 @@ goal_state = np.array([
     [13, 14, 15, 0],
 ])
 
+# goal_state = np.array([
+#     [1, 2, 3],
+#     [4, 5, 6],
+#     [7, 8, 0],
+# ])
+
 
 #Cria novo estado corrente
 def creat_new_state():
@@ -58,6 +64,8 @@ def heuristic(current_state):
     total_distance = 0
     for i in range(current_state.shape[0]):
         for j in range(current_state.shape[1]):
+            # if current_state[i][j] == 0:  # ← isso está aqui?
+            #     continue
             goal_i, goal_j = search(current_state[i][j], goal_state)
             total_distance += get_distance((i, j), (goal_i, goal_j))
     return total_distance
