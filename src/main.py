@@ -2,24 +2,46 @@ import numpy as np
 from board import creat_new_state, is_solvable, is_goal_state, get_next_states, heuristic
 from a_star import a_star
 
-# current_state = creat_new_state()
+# Testes --------------------------------
 
+# 35 movimentos e 3066 iterações
 current_state = np.array([
-    [1, 2, 3, 4],
-    [5, 6, 7, 8],
-    [9, 10, 11, 12],
-    [0, 13, 14, 15],
+    [ 9, 1,  6, 2],
+    [13, 5,  7, 3],
+    [15, 8, 10, 4],
+    [12, 0, 14, 11],
 ])
 
+# 28 movimentos e 7582 iterações
+# current_state = np.array([
+#     [ 1,  2,  3,  6],
+#     [ 5,  7,  4, 11],
+#     [14, 13,  8, 10],
+#     [ 0,  9, 15, 12],
+# ])
 
+# Mais de 10 mil interações
+# current_state = np.array([
+#     [14,  2,  4,  7],
+#     [11,  8, 15,  3],
+#     [ 1, 13,  0, 12],
+#     [ 5,  6,  9, 10],
+# ])
+
+# Testes --------------------------------
 
 #Cria um estado que tem solução
-while not is_solvable(current_state):
-    current_state = creat_new_state()
+# current_state = creat_new_state()
+# while not is_solvable(current_state):
+#     current_state = creat_new_state()
 
 
 # breadth_first_search()
 # depth_first_search()
+print(f'Heurística inicial: {heuristic(current_state)}')
+print(f'Estado inicial:')
+print(current_state)
+
 list_of_states = a_star(current_state)
 step = 0
 for state in list_of_states:
