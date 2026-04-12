@@ -1,6 +1,7 @@
 import numpy as np
 from board import creat_new_state, is_solvable, is_goal_state, get_next_states, heuristic
 from a_star import a_star
+import bfs
 
 # Testes --------------------------------
 
@@ -36,7 +37,7 @@ current_state = np.array([
 #     current_state = creat_new_state()
 
 
-# breadth_first_search()
+solucao_bfs = bfs.breadth_first_search(current_state)
 # depth_first_search()
 print(f'Heurística inicial: {heuristic(current_state)}')
 print(f'Estado inicial:')
