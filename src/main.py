@@ -1,67 +1,107 @@
 import numpy as np
-from board import creat_new_state, is_solvable, is_goal_state, get_next_states, heuristic
-from a_star import a_star
+from board import heuristic
 import bfs
 import dfs
+from a_star import a_star
 
 # Testes --------------------------------
 
-current_state = np.array([
+# Caso de teste 1 (Movimentos perfeitos: 5)
+state1 = np.array([
     [ 1,  2,  3,  4],
-    [ 5,  6,  7,  8],
-    [ 9, 10, 11, 0],
-    [13,  12, 14, 15],
+    [ 5,  6,  8, 12],
+    [ 9, 10,  7,  0],
+    [13, 14, 11, 15],
 ])
 
-# #35 movimentos e 3066 iterações
-# current_state = np.array([
-#     [ 9, 1,  6, 2],
-#     [13, 5,  7, 3],
-#     [15, 8, 10, 4],
-#     [12, 0, 14, 11],
-# ])
+# Caso de teste 2 (Movimentos perfeitos: 10)
+state2 = np.array([
+    [ 1,  2,  3,  4],
+    [ 5,  6,  8, 12],
+    [13,  9, 10,  7],
+    [14,  0, 11, 15],
+])
 
-# 28 movimentos e 7582 iterações
-# current_state = np.array([
-#     [ 1,  2,  3,  6],
-#     [ 5,  7,  4, 11],
-#     [14, 13,  8, 10],
-#     [ 0,  9, 15, 12],
-# ])
+# Caso de teste 3 (Movimentos perfeitos: 15)
+state3 = np.array([
+    [ 1,  2,  3,  4],
+    [ 5,  9,  6, 12],
+    [13,  0,  8,  7],
+    [14, 11, 10, 15],
+])
 
-# Mais de 10 mil interações
-# current_state = np.array([
-#     [14,  2,  4,  7],
-#     [11,  8, 15,  3],
-#     [ 1, 13,  0, 12],
-#     [ 5,  6,  9, 10],
-# ])
+# Caso de teste 4 (Movimentos perfeitos: 20)
+state4 = np.array([
+    [ 5,  1,  3,  4],
+    [ 2,  0,  6, 12],
+    [13,  9,  8,  7],
+    [14, 11, 10, 15],
+])
 
-# Testes --------------------------------
+# Caso de teste 5 (Movimentos perfeitos: 25)
+state5 = np.array([
+    [ 2,  5,  1,  4],
+    [ 0,  6,  3, 12],
+    [13,  9,  8,  7],
+    [14, 11, 10, 15],
+])
 
-#Cria um estado que tem solução
-# current_state = creat_new_state()
-# while not is_solvable(current_state):
-#     current_state = creat_new_state()
+# Caso de teste 6 (Movimentos perfeitos: 30)
+state6 = np.array([
+    [ 5,  1,  4, 12],
+    [ 2,  6,  3,  0],
+    [13,  9,  8,  7],
+    [14, 11, 10, 15],
+])
 
+# Caso de teste 7 (Movimentos perfeitos: 35)
+# Nota: A matriz visual na imagem é idêntica ao caso 5 (25 movimentos)
+state7 = np.array([
+    [ 2,  5,  1,  4],
+    [ 0,  6,  3, 12],
+    [13,  9,  8,  7],
+    [14, 11, 10, 15],
+])
 
-solucao_bfs = bfs.breadth_first_search(current_state)
-solucao_dfs, acoes_dfs = dfs.depth_first_search(current_state, max_depth=25)
+# Caso de teste 8 (Movimentos perfeitos: 40)
+state8 = np.array([
+    [ 2,  5,  1,  4],
+    [ 6,  9,  3, 12],
+    [ 0, 11,  8,  7],
+    [13, 14, 10, 15],
+])
 
-print(f'Heurística inicial: {heuristic(current_state)}')
-print(f'Estado inicial:')
-print(current_state)
+# Agrupando os casos de teste e a quantidade de movimentos perfeitos esperados
+test_cases = [
+    (state1, 5),
+    (state2, 10),
+    (state3, 15),
+    (state4, 20),
+    (state5, 25),
+    (state6, 30),
+    (state7, 35),
+    (state8, 40)
+]
 
-if solucao_dfs is not None:
-    print(f'\nDFS encontrou uma solução em {len(solucao_dfs) - 1} movimentos: {acoes_dfs}')
-else:
-    print('\nDFS não encontrou solução dentro do limite.')
+# Executando os testes
+for index, (current_state, perfect_moves) in enumerate(test_cases, 1):
+    print(f"\n{'=' * 50}")
+    print(f"=== TESTANDO CASO {index} (Movimentos teóricos: {perfect_moves}) ===")
+    print(f"{'=' * 50}")
 
-# list_of_states = a_star(current_state)
-# step = 0
-# for state in list_of_states:
-#     step += 1
-#     for line in state:
-#         print(line)
-#     print('Passo: ' + str(step))
-#     print('='*20)
+    print('Estado inicial:')
+    print(current_state)
+    print(f'Heurística inicial: {heuristic(current_state)}\n')
+
+    # 1. BFS
+    print(">>> Executando BFS...")
+    bfs.breadth_first_search(current_state)
+
+    # 2. DFS
+    print("\n>>> Executando DFS...")
+    # Ajustando a profundidade máxima para permitir que o DFS alcance a solução
+    dfs.depth_first_search(current_state, max_depth=(perfect_moves + 10))
+
+    # 3. A*
+    print("\n>>> Executando A*...")
+    a_star(current_state)
