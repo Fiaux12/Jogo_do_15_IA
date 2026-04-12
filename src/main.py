@@ -49,5 +49,5 @@ for state in list_of_states:
     step += 1
     for line in state:
         print(line)
-    print('Passo: ' + str(step))
+    print('Movimentos: ' + str(step))
     print('='*20)
