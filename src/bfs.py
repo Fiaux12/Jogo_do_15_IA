@@ -30,14 +30,9 @@ def breadth_first_search(initial_state):
     iterations = 0
     max_iterations = 200000  # Limite de 200 mil
 
-    print(f"\n--- Iniciando BFS ---")
-
     while queue:
         current, depth, path = queue.popleft()
         iterations += 1
-
-        if iterations % 1000 == 0:
-            print(f"Iteração: {iterations} | Profundidade: {depth} | Fronteira: {len(queue)}")
 
         # Verifica limite de iterações
         if iterations >= max_iterations:
@@ -46,7 +41,6 @@ def breadth_first_search(initial_state):
             return None
 
         if np.array_equal(current, goal):
-            print(f"\n[SUCESSO] Solução encontrada! Iterações: {iterations} | Profundidade: {depth}")
             return path
 
         for neighbor in get_neighbors(current):
