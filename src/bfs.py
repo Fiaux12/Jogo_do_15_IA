@@ -28,7 +28,7 @@ def breadth_first_search(initial_state):
     queue = deque([(initial_state, 0, [initial_state])])
     explored = {tuple(initial_state.flatten())}
     iterations = 0
-    max_iterations = 200000  # Limite de 1 milhão
+    max_iterations = 200000  # Limite de 200 mil
 
     print(f"\n--- Iniciando BFS ---")
 
