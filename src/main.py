@@ -8,7 +8,7 @@ from a_star import a_star
 # CONFIGURAÇÕES DO EXPERIMENTO
 # ==========================================
 
-NIVEIS_DIFICULDADE = [5, 20, 30, 40, 50]  # Quantidade de passos no Random Walk
+NIVEIS_DIFICULDADE = [5, 20, 50, 70]  # Quantidade de passos no Random Walk
 TENTATIVAS_POR_NIVEL = 5  # Quantidade de testes para cada nível
 TEMPO_MAXIMO = 30  # Segundos por algoritmo
 ITERACOES_MAXIMAS = 1000000  # Limite de nós expandidos
