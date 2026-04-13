@@ -8,10 +8,10 @@ from a_star import a_star
 # CONFIGURAÇÕES DO EXPERIMENTO
 # ==========================================
 
-NIVEIS_DIFICULDADE = [2, 3, 4, 5]  # Quantidade de passos no Random Walk
+NIVEIS_DIFICULDADE = [5, 20, 30, 40, 50]  # Quantidade de passos no Random Walk
 TENTATIVAS_POR_NIVEL = 5  # Quantidade de testes para cada nível
 TEMPO_MAXIMO = 30  # Segundos por algoritmo
-ITERACOES_MAXIMAS = 100000  # Limite de nós expandidos
+ITERACOES_MAXIMAS = 1000000  # Limite de nós expandidos
 PROFUNDIDADE_DFS = 200  # Limite para a DFS não afundar infinitamente
 
 # Dicionário para armazenar as estatísticas consolidadas

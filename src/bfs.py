@@ -19,7 +19,7 @@ def get_neighbors(state):
     return neighbors
 
 
-def breadth_first_search(initial_state, max_time=60, max_iterations=100000):
+def breadth_first_search(initial_state, max_time=60, max_iterations=1000000):
     start_time = time.time()
 
     # Estado meta
