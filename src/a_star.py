@@ -13,10 +13,8 @@ class Node:
 
 def a_star(initial_state, max_time=60, max_iterations=1000000):
     start_time = time.time()
-    # Dicionario de estados
     border = {tuple(initial_state.flatten()): Node(None, 0, heuristic(initial_state), initial_state)}
 
-    # Verifica se um caminho já foi feito
     visited = set()
     nodes_expanded = 0
 
@@ -32,7 +30,6 @@ def a_star(initial_state, max_time=60, max_iterations=1000000):
                 "status": "Timeout"
             }
 
-        # Verifica limite de iterações
         if nodes_expanded >= max_iterations:
             return {
                 "success": False,

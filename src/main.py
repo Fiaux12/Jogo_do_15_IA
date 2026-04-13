@@ -7,6 +7,7 @@ from a_star import a_star
 # ==========================================
 # CONFIGURAÇÕES DO EXPERIMENTO
 # ==========================================
+
 NIVEIS_DIFICULDADE = [2, 3, 4, 5]  # Quantidade de passos no Random Walk
 TENTATIVAS_POR_NIVEL = 5  # Quantidade de testes para cada nível
 TEMPO_MAXIMO = 30  # Segundos por algoritmo
@@ -34,7 +35,6 @@ for passos in NIVEIS_DIFICULDADE:
     for tentativa in range(1, TENTATIVAS_POR_NIVEL + 1):
         print(f"\n--- Gerando Teste {tentativa}/{TENTATIVAS_POR_NIVEL} (Passos: {passos}) ---")
 
-        # Gera o estado usando a nova função (certifique-se de que ela está no board.py)
         estado_atual = board.create_new_valid_state_via_random_walk(passos)
 
         # --- 1. BFS ---

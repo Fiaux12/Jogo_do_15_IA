@@ -20,7 +20,6 @@ def depth_first_search(initial_state, max_depth=50, max_time=60, max_iterations=
     start_time = time.time()
     stack = [(initial_state, 0)]
 
-    # MUDANÇA AQUI: Dicionário para guardar a profundidade em que o estado foi visto
     visited = {}
     nodes_expanded = 0
 
@@ -41,12 +40,9 @@ def depth_first_search(initial_state, max_depth=50, max_time=60, max_iterations=
         current, depth = stack.pop()
         state_tuple = tuple(current.flatten())
 
-        # MUDANÇA AQUI: Só pulamos o estado se já o visitamos numa profundidade MENOR ou IGUAL.
-        # Se chegamos nele agora por um caminho mais rápido, vale a pena explorar de novo!
         if state_tuple in visited and visited[state_tuple] <= depth:
             continue
 
-        # Registra que visitamos este estado nesta profundidade
         visited[state_tuple] = depth
         nodes_expanded += 1
 
@@ -60,7 +56,6 @@ def depth_first_search(initial_state, max_depth=50, max_time=60, max_iterations=
             for neighbor, acao in reversed(get_neighbors_with_actions(current)):
                 neighbor_tuple = tuple(neighbor.flatten())
 
-                # Otimização: Só adiciona na pilha se for um caminho melhor
                 if neighbor_tuple not in visited or visited[neighbor_tuple] > depth + 1:
                     stack.append((neighbor, depth + 1))
 
