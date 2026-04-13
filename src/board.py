@@ -23,6 +23,28 @@ def creat_new_state():
     new_state = values.reshape(4, 4)
     return new_state
 
+#Cria novo estado corrente USANDO RANDOM WALK (SEMPRE SOLÚVEL, RECEBE A QUANTIDADE DE "EMBARALHADAS")
+def create_new_valid_state_via_random_walk(steps):
+    """
+    Gera um estado inicial a partir de uma caminhada aleatória, partindo do
+    objetivo, sendo que cada passo (step) é uma mexida diferente.
+    Apenas para dar uma noção, se step=5 fica um puzzle muito fácil, pois ele vai sair
+    do estado meta e vai mexer o jogo apenas 5 vezes.
+    """
+    current_state = goal_state.copy()
+    movements = [([-1, 0]), ([1, 0]), ([0, 1]), ([0, -1])]
+
+    for _ in range(steps):
+        # Localiza a posição atual do zero
+        zero_pos = search(0, current_state)
+        # Filtra apenas os movimentos que não saem do tabuleiro
+        valid_moves = [m for m in movements if movement_allowed(zero_pos, m)]
+        # Escolhe um movimento aleatório da lista de válidos
+        chosen_move = valid_moves[np.random.choice(len(valid_moves))]
+        # Aplica o movimento e atualiza o estado corrente
+        current_state = get_next_state(current_state, chosen_move, zero_pos)
+
+    return current_state
 
 #Verifica se o problema tem solução
 def is_solvable(state):
