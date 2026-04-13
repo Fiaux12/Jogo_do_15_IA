@@ -16,7 +16,7 @@ def get_neighbors_with_actions(state):
     return neighbors
 
 
-def depth_first_search(initial_state, max_depth=50, max_time=60, max_iterations=1000000):
+def depth_first_search(initial_state, max_depth=50, max_time=60, max_iterations=100000):
     start_time = time.time()
     stack = [(initial_state, 0)]
 

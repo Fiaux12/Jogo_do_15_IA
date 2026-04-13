@@ -11,7 +11,7 @@ from a_star import a_star
 NIVEIS_DIFICULDADE = [2, 3, 4, 5]  # Quantidade de passos no Random Walk
 TENTATIVAS_POR_NIVEL = 5  # Quantidade de testes para cada nível
 TEMPO_MAXIMO = 30  # Segundos por algoritmo
-ITERACOES_MAXIMAS = 1000000  # Limite de nós expandidos
+ITERACOES_MAXIMAS = 100000  # Limite de nós expandidos
 PROFUNDIDADE_DFS = 200  # Limite para a DFS não afundar infinitamente
 
 # Dicionário para armazenar as estatísticas consolidadas
@@ -36,6 +36,10 @@ for passos in NIVEIS_DIFICULDADE:
         print(f"\n--- Gerando Teste {tentativa}/{TENTATIVAS_POR_NIVEL} (Passos: {passos}) ---")
 
         estado_atual = board.create_new_valid_state_via_random_walk(passos)
+        while not board.is_solvable(estado_atual):
+            estado_atual = board.create_new_valid_state_via_random_walk(passos)
+            
+        print(estado_atual)
 
         # --- 1. BFS ---
         res_bfs = breadth_first_search(estado_atual, max_time=TEMPO_MAXIMO, max_iterations=ITERACOES_MAXIMAS)

@@ -11,7 +11,7 @@ class Node:
         self.state = state
 
 
-def a_star(initial_state, max_time=60, max_iterations=1000000):
+def a_star(initial_state, max_time=60, max_iterations=100000):
     start_time = time.time()
     border = {tuple(initial_state.flatten()): Node(None, 0, heuristic(initial_state), initial_state)}
 
