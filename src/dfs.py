@@ -1,4 +1,5 @@
 import numpy as np
+import time
 from board import is_goal_state, movement_allowed, get_next_state
 
 
@@ -12,45 +13,53 @@ def get_neighbors_with_actions(state):
         if movement_allowed((row, col), (dr, dc)):
             neighbor = get_next_state(state, [dr, dc], (row, col))
             neighbors.append((neighbor, acao))
-
     return neighbors
 
 
-def depth_first_search(initial_state, max_depth=5, max_iterations=5000000):
-    print("\n--- Iniciando DFS ---")
-    stack = [(initial_state, [initial_state], [], 0)]
-    visited = set()
-    iterations = 0
+def depth_first_search(initial_state, max_depth=50, max_time=60, max_iterations=1000000):
+    start_time = time.time()
+    stack = [(initial_state, 0)]
+
+    visited = {}
+    nodes_expanded = 0
 
     while stack:
-        current, path, actions, depth = stack.pop()
+        elapsed_time = time.time() - start_time
+        if elapsed_time > max_time:
+            return {
+                "success": False, "nodes_expanded": nodes_expanded,
+                "cost": None, "time": elapsed_time, "status": "Timeout"
+            }
+
+        if nodes_expanded >= max_iterations:
+            return {
+                "success": False, "nodes_expanded": nodes_expanded,
+                "cost": None, "time": elapsed_time, "status": "Max Iterations"
+            }
+
+        current, depth = stack.pop()
         state_tuple = tuple(current.flatten())
 
-        if state_tuple in visited:
+        if state_tuple in visited and visited[state_tuple] <= depth:
             continue
 
-        visited.add(state_tuple)
-        iterations += 1
-
-        if iterations % 1000 == 0:
-            print(f"Iteração: {iterations} | Profundidade: {depth} | Fronteira: {len(stack)}")
-
-        if iterations >= max_iterations:
-            print(f"\n[ERRO] Limite de {max_iterations} iterações atingido sem solução.")
-            print(f"Última profundidade explorada: {depth}")
-            return None, None
+        visited[state_tuple] = depth
+        nodes_expanded += 1
 
         if is_goal_state(current):
-            print(f"\n[SUCESSO] Solução DFS encontrada! Iterações: {iterations} | Profundidade: {depth}")
-            return path, actions
+            return {
+                "success": True, "nodes_expanded": nodes_expanded,
+                "cost": depth, "time": time.time() - start_time, "status": "Success"
+            }
 
-        if depth >= max_depth:
-            continue
+        if depth < max_depth:
+            for neighbor, acao in reversed(get_neighbors_with_actions(current)):
+                neighbor_tuple = tuple(neighbor.flatten())
 
-        for neighbor, acao in reversed(get_neighbors_with_actions(current)):
-            neighbor_tuple = tuple(neighbor.flatten())
-            if neighbor_tuple not in visited:
-                stack.append((neighbor, path + [neighbor], actions + [acao], depth + 1))
+                if neighbor_tuple not in visited or visited[neighbor_tuple] > depth + 1:
+                    stack.append((neighbor, depth + 1))
 
-    print("\nFronteira exaurida sem encontrar solução.")
-    return None, None
+    return {
+        "success": False, "nodes_expanded": nodes_expanded,
+        "cost": None, "time": time.time() - start_time, "status": "Exhausted"
+    }

@@ -1,5 +1,7 @@
 import numpy as np
+import time
 from board import is_goal_state, get_next_states, heuristic
+
 
 class Node:
     def __init__(self, previous, cost, heuristic, state):
@@ -9,16 +11,34 @@ class Node:
         self.state = state
 
 
-def a_star(initial_state):
-    # Dicionario de estados
-    border = {tuple(initial_state.flatten()): Node(None, 0, heuristic(initial_state), initial_state) }
+def a_star(initial_state, max_time=60, max_iterations=1000000):
+    start_time = time.time()
+    border = {tuple(initial_state.flatten()): Node(None, 0, heuristic(initial_state), initial_state)}
 
-    # Verifica se um caminho já foi feito
     visited = set()
-
-    iterations = 0
+    nodes_expanded = 0
 
     while border:
+        # Verifica tempo de execução
+        elapsed_time = time.time() - start_time
+        if elapsed_time > max_time:
+            return {
+                "success": False,
+                "nodes_expanded": nodes_expanded,
+                "cost": None,
+                "time": elapsed_time,
+                "status": "Timeout"
+            }
+
+        if nodes_expanded >= max_iterations:
+            return {
+                "success": False,
+                "nodes_expanded": nodes_expanded,
+                "cost": None,
+                "time": elapsed_time,
+                "status": "Max Iterations"
+            }
+
         node, pos = get_cheapest_border(border)
         border.pop(pos)
 
@@ -26,51 +46,48 @@ def a_star(initial_state):
 
         if state_tuple in visited:
             continue
-        
-        visited.add(state_tuple)
-        iterations += 1
 
-        # Parar depois de 
-        if iterations == 10000:
-            print("Não foi possivel achar uma solução em 10 mil interações")
-            print(f'Iteração {iterations} | Fronteira: {len(border)} | custo={node.cost} | helritica={node.heuristic}')
-            return Exception('No solution found')
+        visited.add(state_tuple)
+        nodes_expanded += 1
 
         if is_goal_state(node.state):
-            print(f'Solução encontrada em {iterations} iterações!')
-            return get_list_of_states(node)
+            return {
+                "success": True,
+                "nodes_expanded": nodes_expanded,
+                "cost": node.cost,  # O custo é igual à profundidade neste caso
+                "time": time.time() - start_time,
+                "status": "Success"
+            }
 
         expand_border(node, visited, border)
 
-    raise Exception('No solution found')
+    # Se a fronteira esvaziar e não achar solução
+    return {
+        "success": False,
+        "nodes_expanded": nodes_expanded,
+        "cost": None,
+        "time": time.time() - start_time,
+        "status": "Exhausted"
+    }
 
 
 # Busca a fronteira de menor custo
 def get_cheapest_border(border):
     cheapest_node = None
     cheapest_state = None
-    
+
     for key in border:
         value = border[key]
-
         if cheapest_node is None:
             cheapest_node = value
             cheapest_state = key
             continue
 
-
+        # A* f(n) = g(n) + h(n)
         if (value.cost + value.heuristic < cheapest_node.cost + cheapest_node.heuristic):
             cheapest_node, cheapest_state = value, key
+
     return cheapest_node, cheapest_state
-
-
-# Busca a lista de novos estados
-def get_list_of_states(node):
-    list_of_states = [node.state]
-    while node.previous:
-        node = node.previous
-        list_of_states.insert(0, node.state)
-    return list_of_states
 
 
 # Expande a fronteira verificando se o novo estado
@@ -80,4 +97,3 @@ def expand_border(node, visited, border):
         state_tuple = tuple(state.flatten())
         if state_tuple not in visited and state_tuple not in border:
             border[state_tuple] = Node(node, node.cost + cost, heuristic(state), state)
-

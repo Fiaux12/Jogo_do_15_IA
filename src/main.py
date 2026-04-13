@@ -1,67 +1,95 @@
 import numpy as np
-from board import creat_new_state, is_solvable, is_goal_state, get_next_states, heuristic
+import board
+from bfs import breadth_first_search
+from dfs import depth_first_search
 from a_star import a_star
-import bfs
-import dfs
 
-# Testes --------------------------------
+# ==========================================
+# CONFIGURAÇÕES DO EXPERIMENTO
+# ==========================================
 
-current_state = np.array([
-    [ 1,  2,  3,  4],
-    [ 5,  6,  7,  8],
-    [ 9, 10, 11, 0],
-    [13,  12, 14, 15],
-])
+NIVEIS_DIFICULDADE = [2, 3, 4, 5]  # Quantidade de passos no Random Walk
+TENTATIVAS_POR_NIVEL = 5  # Quantidade de testes para cada nível
+TEMPO_MAXIMO = 30  # Segundos por algoritmo
+ITERACOES_MAXIMAS = 1000000  # Limite de nós expandidos
+PROFUNDIDADE_DFS = 200  # Limite para a DFS não afundar infinitamente
 
-# #35 movimentos e 3066 iterações
-# current_state = np.array([
-#     [ 9, 1,  6, 2],
-#     [13, 5,  7, 3],
-#     [15, 8, 10, 4],
-#     [12, 0, 14, 11],
-# ])
+# Dicionário para armazenar as estatísticas consolidadas
+estatisticas = {
+    nivel: {
+        'BFS': {'sucessos': 0, 'nos': [], 'custo': [], 'tempo': []},
+        'DFS': {'sucessos': 0, 'nos': [], 'custo': [], 'tempo': []},
+        'A*': {'sucessos': 0, 'nos': [], 'custo': [], 'tempo': []}
+    } for nivel in NIVEIS_DIFICULDADE
+}
 
-# 28 movimentos e 7582 iterações
-# current_state = np.array([
-#     [ 1,  2,  3,  6],
-#     [ 5,  7,  4, 11],
-#     [14, 13,  8, 10],
-#     [ 0,  9, 15, 12],
-# ])
+print("Iniciando bateria de testes estatísticos...")
+print(f"Níveis de complexidade (Random Walk): {NIVEIS_DIFICULDADE}")
+print(f"Tentativas por nível: {TENTATIVAS_POR_NIVEL}\n")
 
-# Mais de 10 mil interações
-# current_state = np.array([
-#     [14,  2,  4,  7],
-#     [11,  8, 15,  3],
-#     [ 1, 13,  0, 12],
-#     [ 5,  6,  9, 10],
-# ])
+for passos in NIVEIS_DIFICULDADE:
+    print(f"{'=' * 60}")
+    print(f"=== TESTANDO COMPLEXIDADE: {passos} PASSOS (Random Walk) ===")
+    print(f"{'=' * 60}")
 
-# Testes --------------------------------
+    for tentativa in range(1, TENTATIVAS_POR_NIVEL + 1):
+        print(f"\n--- Gerando Teste {tentativa}/{TENTATIVAS_POR_NIVEL} (Passos: {passos}) ---")
 
-#Cria um estado que tem solução
-# current_state = creat_new_state()
-# while not is_solvable(current_state):
-#     current_state = creat_new_state()
+        estado_atual = board.create_new_valid_state_via_random_walk(passos)
 
+        # --- 1. BFS ---
+        res_bfs = breadth_first_search(estado_atual, max_time=TEMPO_MAXIMO, max_iterations=ITERACOES_MAXIMAS)
+        if res_bfs['success']:
+            estatisticas[passos]['BFS']['sucessos'] += 1
+            estatisticas[passos]['BFS']['nos'].append(res_bfs['nodes_expanded'])
+            estatisticas[passos]['BFS']['custo'].append(res_bfs['cost'])
+            estatisticas[passos]['BFS']['tempo'].append(res_bfs['time'])
 
-solucao_bfs = bfs.breadth_first_search(current_state)
-solucao_dfs, acoes_dfs = dfs.depth_first_search(current_state, max_depth=25)
+        # --- 2. DFS ---
+        res_dfs = depth_first_search(estado_atual, max_depth=PROFUNDIDADE_DFS, max_time=TEMPO_MAXIMO,
+                                     max_iterations=ITERACOES_MAXIMAS)
+        if res_dfs['success']:
+            estatisticas[passos]['DFS']['sucessos'] += 1
+            estatisticas[passos]['DFS']['nos'].append(res_dfs['nodes_expanded'])
+            estatisticas[passos]['DFS']['custo'].append(res_dfs['cost'])
+            estatisticas[passos]['DFS']['tempo'].append(res_dfs['time'])
 
-print(f'Heurística inicial: {heuristic(current_state)}')
-print(f'Estado inicial:')
-print(current_state)
+        # --- 3. A* ---
+        res_astar = a_star(estado_atual, max_time=TEMPO_MAXIMO, max_iterations=ITERACOES_MAXIMAS)
+        if res_astar['success']:
+            estatisticas[passos]['A*']['sucessos'] += 1
+            estatisticas[passos]['A*']['nos'].append(res_astar['nodes_expanded'])
+            estatisticas[passos]['A*']['custo'].append(res_astar['cost'])
+            estatisticas[passos]['A*']['tempo'].append(res_astar['time'])
 
-if solucao_dfs is not None:
-    print(f'\nDFS encontrou uma solução em {len(solucao_dfs) - 1} movimentos: {acoes_dfs}')
-else:
-    print('\nDFS não encontrou solução dentro do limite.')
+        print(f"BFS -> Status: {res_bfs['status']} | Nós: {res_bfs['nodes_expanded']} | Tempo: {res_bfs['time']:.3f}s")
+        print(f"DFS -> Status: {res_dfs['status']} | Nós: {res_dfs['nodes_expanded']} | Tempo: {res_dfs['time']:.3f}s")
+        print(
+            f"A* -> Status: {res_astar['status']} | Nós: {res_astar['nodes_expanded']} | Tempo: {res_astar['time']:.3f}s")
 
-# list_of_states = a_star(current_state)
-# step = 0
-# for state in list_of_states:
-#     step += 1
-#     for line in state:
-#         print(line)
-#     print('Passo: ' + str(step))
-#     print('='*20)
+# ==============================================================================
+# GERAÇÃO DA TABELA FINAL COM MÉDIAS (TAREFA 5)
+# ==============================================================================
+print("\n" + "=" * 90)
+print("RELATÓRIO FINAL DE ESTATÍSTICAS (MÉDIAS DOS CASOS BEM-SUCEDIDOS)")
+print("=" * 90)
+print(
+    f"{'Passos (RW)':<12} | {'Algoritmo':<10} | {'Sucesso (%)':<12} | {'Média Nós Exp.':<15} | {'Média Custo':<12} | {'Média Tempo (s)':<15}")
+print("-" * 90)
+
+for passos in NIVEIS_DIFICULDADE:
+    for alg in ['BFS', 'DFS', 'A*']:
+        dados = estatisticas[passos][alg]
+        taxa_sucesso = (dados['sucessos'] / TENTATIVAS_POR_NIVEL) * 100
+
+        # Calcula as médias apenas se houver pelo menos 1 sucesso
+        if dados['sucessos'] > 0:
+            media_nos = sum(dados['nos']) / dados['sucessos']
+            media_custo = sum(dados['custo']) / dados['sucessos']
+            media_tempo = sum(dados['tempo']) / dados['sucessos']
+
+            print(
+                f"{passos:<12} | {alg:<10} | {taxa_sucesso:>8.1f}%   | {media_nos:>14.1f} | {media_custo:>11.1f} | {media_tempo:>14.4f}")
+        else:
+            print(f"{passos:<12} | {alg:<10} | {taxa_sucesso:>8.1f}%   | {'N/A':>14} | {'N/A':>11} | {'N/A':>14}")
+    print("-" * 90)
