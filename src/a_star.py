@@ -2,6 +2,7 @@ import numpy as np
 import time
 from board import is_goal_state, get_next_states, heuristic
 
+
 class Node:
     def __init__(self, previous, cost, heuristic, state):
         self.previous = previous
@@ -9,7 +10,8 @@ class Node:
         self.heuristic = heuristic
         self.state = state
 
-def a_star(initial_state):
+
+def a_star(initial_state, max_time=60, max_iterations=1000000):
     start_time = time.time()
     # Dicionario de estados
     border = {tuple(initial_state.flatten()): Node(None, 0, heuristic(initial_state), initial_state)}
@@ -17,20 +19,28 @@ def a_star(initial_state):
     # Verifica se um caminho já foi feito
     visited = set()
     nodes_expanded = 0
-    max_iterations = 1000000  # 1 Milhão
-    max_time = 60  # 60 Segundos
 
     while border:
         # Verifica tempo de execução
         elapsed_time = time.time() - start_time
         if elapsed_time > max_time:
-            print(f"\n[ABORTADO] Limite de tempo ({max_time}s) atingido.")
-            break
+            return {
+                "success": False,
+                "nodes_expanded": nodes_expanded,
+                "cost": None,
+                "time": elapsed_time,
+                "status": "Timeout"
+            }
 
         # Verifica limite de iterações
         if nodes_expanded >= max_iterations:
-            print(f"\n[ABORTADO] Limite de {max_iterations} iterações atingido.")
-            break
+            return {
+                "success": False,
+                "nodes_expanded": nodes_expanded,
+                "cost": None,
+                "time": elapsed_time,
+                "status": "Max Iterations"
+            }
 
         node, pos = get_cheapest_border(border)
         border.pop(pos)
@@ -44,23 +54,25 @@ def a_star(initial_state):
         nodes_expanded += 1
 
         if is_goal_state(node.state):
-            end_time = time.time()
-            print("-" * 30)
-            print(f"Solução encontrada!")
-            print(f"Nós expandidos: {nodes_expanded}")
-            print(f"Custo da solução: {node.cost}")
-            print(f"Tempo de execução: {end_time - start_time:.4f} segundos")
-            print("-" * 30)
-            return True # Retorna apenas True, ignorando o caminho percorrido
+            return {
+                "success": True,
+                "nodes_expanded": nodes_expanded,
+                "cost": node.cost,  # O custo é igual à profundidade neste caso
+                "time": time.time() - start_time,
+                "status": "Success"
+            }
 
         expand_border(node, visited, border)
 
-    if not is_goal_state(node.state):
-        print(f"\nNós expandidos: {nodes_expanded}")
-        print(f"Tempo de execução: {time.time() - start_time:.4f}s")
-        print("Solução não encontrada nos limites definidos.")
+    # Se a fronteira esvaziar e não achar solução
+    return {
+        "success": False,
+        "nodes_expanded": nodes_expanded,
+        "cost": None,
+        "time": time.time() - start_time,
+        "status": "Exhausted"
+    }
 
-    return None
 
 # Busca a fronteira de menor custo
 def get_cheapest_border(border):
@@ -74,9 +86,12 @@ def get_cheapest_border(border):
             cheapest_state = key
             continue
 
+        # A* f(n) = g(n) + h(n)
         if (value.cost + value.heuristic < cheapest_node.cost + cheapest_node.heuristic):
             cheapest_node, cheapest_state = value, key
+
     return cheapest_node, cheapest_state
+
 
 # Expande a fronteira verificando se o novo estado
 # foi visitado ou se já se encontra na fronteira

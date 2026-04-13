@@ -5,8 +5,9 @@ import time
 
 def get_neighbors(state):
     neighbors = []
-    r, c = np.where(state == 0)
-    r, c = r[0], c[0]
+    # Encontra a posição do zero (vazio)
+    pos = np.where(state == 0)
+    r, c = pos[0][0], pos[1][0]
 
     # Movimentos: Cima, Baixo, Esquerda, Direita
     for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
@@ -18,10 +19,10 @@ def get_neighbors(state):
     return neighbors
 
 
-def breadth_first_search(initial_state):
+def breadth_first_search(initial_state, max_time=60, max_iterations=1000000):
     start_time = time.time()
 
-    # Estado meta padrão
+    # Estado meta
     goal = np.array([
         [1, 2, 3, 4],
         [5, 6, 7, 8],
@@ -30,50 +31,59 @@ def breadth_first_search(initial_state):
     ])
 
     # Fila armazena (estado_atual, profundidade)
-    # Removi o 'path' da fila para economizar MUITA memória,
-    # já que a BFS em 4x4 explode rápido.
     queue = deque([(initial_state, 0)])
+
+    # Set de explorados usando a representação em tupla (imutável) para eficiência
     explored = {tuple(initial_state.flatten())}
 
     nodes_expanded = 0
-    max_iterations = 1000000  # 1 Milhão
-    max_time = 60  # 1 Minuto
 
     while queue:
         current, depth = queue.popleft()
         nodes_expanded += 1
 
-        # Verifica tempo de execução
+        # Verificação de segurança (Tempo)
         elapsed_time = time.time() - start_time
         if elapsed_time > max_time:
-            print(f"\n[ABORTADO] Limite de tempo ({max_time}s) atingido.")
-            break
+            return {
+                "success": False,
+                "nodes_expanded": nodes_expanded,
+                "cost": None,
+                "time": elapsed_time,
+                "status": "Timeout"
+            }
 
-        # Verifica limite de iterações
+        # Verificação de segurança (Iterações/Memória)
         if nodes_expanded >= max_iterations:
-            print(f"\n[ABORTADO] Limite de {max_iterations} iterações atingido.")
-            break
+            return {
+                "success": False,
+                "nodes_expanded": nodes_expanded,
+                "cost": None,
+                "time": elapsed_time,
+                "status": "Max Iterations"
+            }
 
-        # Verifica se chegou ao objetivo
+        # Teste de Objetivo
         if np.array_equal(current, goal):
-            end_time = time.time()
-            print("-" * 30)
-            print(f"Solução encontrada!")
-            print(f"Nós expandidos: {nodes_expanded}")
-            print(f"Custo da solução (profundidade): {depth}")
-            print(f"Tempo de execução: {end_time - start_time:.4f} segundos")
-            print("-" * 30)
-            return True
+            return {
+                "success": True,
+                "nodes_expanded": nodes_expanded,
+                "cost": depth,
+                "time": elapsed_time,
+                "status": "Success"
+            }
 
+        # Expansão de vizinhos
         for neighbor in get_neighbors(current):
             state_tuple = tuple(neighbor.flatten())
             if state_tuple not in explored:
                 explored.add(state_tuple)
                 queue.append((neighbor, depth + 1))
 
-    if not np.array_equal(current, goal):
-        print(f"\nNós expandidos: {nodes_expanded}")
-        print(f"Tempo de execução: {time.time() - start_time:.4f}s")
-        print("Solução não encontrada nos limites definidos.")
-
-    return None
+    return {
+        "success": False,
+        "nodes_expanded": nodes_expanded,
+        "cost": None,
+        "time": time.time() - start_time,
+        "status": "Exhausted"
+    }

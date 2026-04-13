@@ -1,107 +1,95 @@
 import numpy as np
-from board import heuristic
-import bfs
-import dfs
+import board
+from bfs import breadth_first_search
+from dfs import depth_first_search
 from a_star import a_star
 
-# Testes --------------------------------
+# ==========================================
+# CONFIGURAÇÕES DO EXPERIMENTO
+# ==========================================
+NIVEIS_DIFICULDADE = [2, 3, 4, 5]  # Quantidade de passos no Random Walk
+TENTATIVAS_POR_NIVEL = 5  # Quantidade de testes para cada nível
+TEMPO_MAXIMO = 30  # Segundos por algoritmo
+ITERACOES_MAXIMAS = 1000000  # Limite de nós expandidos
+PROFUNDIDADE_DFS = 200  # Limite para a DFS não afundar infinitamente
 
-# Caso de teste 1 (Movimentos perfeitos: 5)
-state1 = np.array([
-    [ 1,  2,  3,  4],
-    [ 5,  6,  8, 12],
-    [ 9, 10,  7,  0],
-    [13, 14, 11, 15],
-])
+# Dicionário para armazenar as estatísticas consolidadas
+estatisticas = {
+    nivel: {
+        'BFS': {'sucessos': 0, 'nos': [], 'custo': [], 'tempo': []},
+        'DFS': {'sucessos': 0, 'nos': [], 'custo': [], 'tempo': []},
+        'A*': {'sucessos': 0, 'nos': [], 'custo': [], 'tempo': []}
+    } for nivel in NIVEIS_DIFICULDADE
+}
 
-# Caso de teste 2 (Movimentos perfeitos: 10)
-state2 = np.array([
-    [ 1,  2,  3,  4],
-    [ 5,  6,  8, 12],
-    [13,  9, 10,  7],
-    [14,  0, 11, 15],
-])
+print("Iniciando bateria de testes estatísticos...")
+print(f"Níveis de complexidade (Random Walk): {NIVEIS_DIFICULDADE}")
+print(f"Tentativas por nível: {TENTATIVAS_POR_NIVEL}\n")
 
-# Caso de teste 3 (Movimentos perfeitos: 15)
-state3 = np.array([
-    [ 1,  2,  3,  4],
-    [ 5,  9,  6, 12],
-    [13,  0,  8,  7],
-    [14, 11, 10, 15],
-])
+for passos in NIVEIS_DIFICULDADE:
+    print(f"{'=' * 60}")
+    print(f"=== TESTANDO COMPLEXIDADE: {passos} PASSOS (Random Walk) ===")
+    print(f"{'=' * 60}")
 
-# Caso de teste 4 (Movimentos perfeitos: 20)
-state4 = np.array([
-    [ 5,  1,  3,  4],
-    [ 2,  0,  6, 12],
-    [13,  9,  8,  7],
-    [14, 11, 10, 15],
-])
+    for tentativa in range(1, TENTATIVAS_POR_NIVEL + 1):
+        print(f"\n--- Gerando Teste {tentativa}/{TENTATIVAS_POR_NIVEL} (Passos: {passos}) ---")
 
-# Caso de teste 5 (Movimentos perfeitos: 25)
-state5 = np.array([
-    [ 2,  5,  1,  4],
-    [ 0,  6,  3, 12],
-    [13,  9,  8,  7],
-    [14, 11, 10, 15],
-])
+        # Gera o estado usando a nova função (certifique-se de que ela está no board.py)
+        estado_atual = board.create_new_valid_state_via_random_walk(passos)
 
-# Caso de teste 6 (Movimentos perfeitos: 30)
-state6 = np.array([
-    [ 5,  1,  4, 12],
-    [ 2,  6,  3,  0],
-    [13,  9,  8,  7],
-    [14, 11, 10, 15],
-])
+        # --- 1. BFS ---
+        res_bfs = breadth_first_search(estado_atual, max_time=TEMPO_MAXIMO, max_iterations=ITERACOES_MAXIMAS)
+        if res_bfs['success']:
+            estatisticas[passos]['BFS']['sucessos'] += 1
+            estatisticas[passos]['BFS']['nos'].append(res_bfs['nodes_expanded'])
+            estatisticas[passos]['BFS']['custo'].append(res_bfs['cost'])
+            estatisticas[passos]['BFS']['tempo'].append(res_bfs['time'])
 
-# Caso de teste 7 (Movimentos perfeitos: 35)
-# Nota: A matriz visual na imagem é idêntica ao caso 5 (25 movimentos)
-state7 = np.array([
-    [ 2,  5,  1,  4],
-    [ 0,  6,  3, 12],
-    [13,  9,  8,  7],
-    [14, 11, 10, 15],
-])
+        # --- 2. DFS ---
+        res_dfs = depth_first_search(estado_atual, max_depth=PROFUNDIDADE_DFS, max_time=TEMPO_MAXIMO,
+                                     max_iterations=ITERACOES_MAXIMAS)
+        if res_dfs['success']:
+            estatisticas[passos]['DFS']['sucessos'] += 1
+            estatisticas[passos]['DFS']['nos'].append(res_dfs['nodes_expanded'])
+            estatisticas[passos]['DFS']['custo'].append(res_dfs['cost'])
+            estatisticas[passos]['DFS']['tempo'].append(res_dfs['time'])
 
-# Caso de teste 8 (Movimentos perfeitos: 40)
-state8 = np.array([
-    [ 2,  5,  1,  4],
-    [ 6,  9,  3, 12],
-    [ 0, 11,  8,  7],
-    [13, 14, 10, 15],
-])
+        # --- 3. A* ---
+        res_astar = a_star(estado_atual, max_time=TEMPO_MAXIMO, max_iterations=ITERACOES_MAXIMAS)
+        if res_astar['success']:
+            estatisticas[passos]['A*']['sucessos'] += 1
+            estatisticas[passos]['A*']['nos'].append(res_astar['nodes_expanded'])
+            estatisticas[passos]['A*']['custo'].append(res_astar['cost'])
+            estatisticas[passos]['A*']['tempo'].append(res_astar['time'])
 
-# Agrupando os casos de teste e a quantidade de movimentos perfeitos esperados
-test_cases = [
-    (state1, 5),
-    (state2, 10),
-    (state3, 15),
-    (state4, 20),
-    (state5, 25),
-    (state6, 30),
-    (state7, 35),
-    (state8, 40)
-]
+        print(f"BFS -> Status: {res_bfs['status']} | Nós: {res_bfs['nodes_expanded']} | Tempo: {res_bfs['time']:.3f}s")
+        print(f"DFS -> Status: {res_dfs['status']} | Nós: {res_dfs['nodes_expanded']} | Tempo: {res_dfs['time']:.3f}s")
+        print(
+            f"A* -> Status: {res_astar['status']} | Nós: {res_astar['nodes_expanded']} | Tempo: {res_astar['time']:.3f}s")
 
-# Executando os testes
-for index, (current_state, perfect_moves) in enumerate(test_cases, 1):
-    print(f"\n{'=' * 50}")
-    print(f"=== TESTANDO CASO {index} (Movimentos teóricos: {perfect_moves}) ===")
-    print(f"{'=' * 50}")
+# ==============================================================================
+# GERAÇÃO DA TABELA FINAL COM MÉDIAS (TAREFA 5)
+# ==============================================================================
+print("\n" + "=" * 90)
+print("RELATÓRIO FINAL DE ESTATÍSTICAS (MÉDIAS DOS CASOS BEM-SUCEDIDOS)")
+print("=" * 90)
+print(
+    f"{'Passos (RW)':<12} | {'Algoritmo':<10} | {'Sucesso (%)':<12} | {'Média Nós Exp.':<15} | {'Média Custo':<12} | {'Média Tempo (s)':<15}")
+print("-" * 90)
 
-    print('Estado inicial:')
-    print(current_state)
-    print(f'Heurística inicial: {heuristic(current_state)}\n')
+for passos in NIVEIS_DIFICULDADE:
+    for alg in ['BFS', 'DFS', 'A*']:
+        dados = estatisticas[passos][alg]
+        taxa_sucesso = (dados['sucessos'] / TENTATIVAS_POR_NIVEL) * 100
 
-    # 1. BFS
-    print(">>> Executando BFS...")
-    bfs.breadth_first_search(current_state)
+        # Calcula as médias apenas se houver pelo menos 1 sucesso
+        if dados['sucessos'] > 0:
+            media_nos = sum(dados['nos']) / dados['sucessos']
+            media_custo = sum(dados['custo']) / dados['sucessos']
+            media_tempo = sum(dados['tempo']) / dados['sucessos']
 
-    # 2. DFS
-    print("\n>>> Executando DFS...")
-    # Ajustando a profundidade máxima para permitir que o DFS alcance a solução
-    dfs.depth_first_search(current_state, max_depth=(perfect_moves + 10))
-
-    # 3. A*
-    print("\n>>> Executando A*...")
-    a_star(current_state)
+            print(
+                f"{passos:<12} | {alg:<10} | {taxa_sucesso:>8.1f}%   | {media_nos:>14.1f} | {media_custo:>11.1f} | {media_tempo:>14.4f}")
+        else:
+            print(f"{passos:<12} | {alg:<10} | {taxa_sucesso:>8.1f}%   | {'N/A':>14} | {'N/A':>11} | {'N/A':>14}")
+    print("-" * 90)

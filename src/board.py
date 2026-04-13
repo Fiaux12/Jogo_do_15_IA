@@ -23,7 +23,7 @@ def creat_new_state():
     new_state = values.reshape(4, 4)
     return new_state
 
-#Cria novo estado corrente USANDO RANDOM WALK (SEMPRE SOLÚVEL, RECEBE A QUANTIDADE DE "EMBARALHADAS")
+#Cria novo estado necessariamente solúvel usando caminhada aleatória
 def create_new_valid_state_via_random_walk(steps):
     """
     Gera um estado inicial a partir de uma caminhada aleatória, partindo do
@@ -45,6 +45,7 @@ def create_new_valid_state_via_random_walk(steps):
         current_state = get_next_state(current_state, chosen_move, zero_pos)
 
     return current_state
+
 
 #Verifica se o problema tem solução
 def is_solvable(state):
