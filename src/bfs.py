@@ -2,14 +2,12 @@ import numpy as np
 from collections import deque
 import time
 
-
+# Gera todos os estados vizinhos possíveis 
 def get_neighbors(state):
     neighbors = []
-    # Encontra a posição do zero (vazio)
     pos = np.where(state == 0)
     r, c = pos[0][0], pos[1][0]
 
-    # Movimentos: Cima, Baixo, Esquerda, Direita
     for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
         nr, nc = r + dr, c + dc
         if 0 <= nr < 4 and 0 <= nc < 4:
@@ -19,10 +17,10 @@ def get_neighbors(state):
     return neighbors
 
 
+# Busca em Largura
 def breadth_first_search(initial_state, max_time=60, max_iterations=1000000):
     start_time = time.time()
 
-    # Estado meta
     goal = np.array([
         [1, 2, 3, 4],
         [5, 6, 7, 8],
@@ -30,10 +28,8 @@ def breadth_first_search(initial_state, max_time=60, max_iterations=1000000):
         [13, 14, 15, 0]
     ])
 
-    # Fila armazena (estado_atual, profundidade)
     queue = deque([(initial_state, 0)])
 
-    # Set de explorados usando a representação em tupla (imutável) para eficiência
     explored = {tuple(initial_state.flatten())}
 
     nodes_expanded = 0
@@ -42,7 +38,6 @@ def breadth_first_search(initial_state, max_time=60, max_iterations=1000000):
         current, depth = queue.popleft()
         nodes_expanded += 1
 
-        # Verificação de segurança (Tempo)
         elapsed_time = time.time() - start_time
         if elapsed_time > max_time:
             return {
@@ -53,7 +48,6 @@ def breadth_first_search(initial_state, max_time=60, max_iterations=1000000):
                 "status": "Timeout"
             }
 
-        # Verificação de segurança (Iterações/Memória)
         if nodes_expanded >= max_iterations:
             return {
                 "success": False,
@@ -63,7 +57,6 @@ def breadth_first_search(initial_state, max_time=60, max_iterations=1000000):
                 "status": "Max Iterations"
             }
 
-        # Teste de Objetivo
         if np.array_equal(current, goal):
             return {
                 "success": True,
@@ -73,7 +66,6 @@ def breadth_first_search(initial_state, max_time=60, max_iterations=1000000):
                 "status": "Success"
             }
 
-        # Expansão de vizinhos
         for neighbor in get_neighbors(current):
             state_tuple = tuple(neighbor.flatten())
             if state_tuple not in explored:

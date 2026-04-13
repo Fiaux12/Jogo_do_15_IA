@@ -11,6 +11,7 @@ class Node:
         self.state = state
 
 
+# Algoritmo A*
 def a_star(initial_state, max_time=60, max_iterations=1000000):
     start_time = time.time()
     border = {tuple(initial_state.flatten()): Node(None, 0, heuristic(initial_state), initial_state)}
@@ -19,7 +20,6 @@ def a_star(initial_state, max_time=60, max_iterations=1000000):
     nodes_expanded = 0
 
     while border:
-        # Verifica tempo de execução
         elapsed_time = time.time() - start_time
         if elapsed_time > max_time:
             return {
@@ -54,14 +54,13 @@ def a_star(initial_state, max_time=60, max_iterations=1000000):
             return {
                 "success": True,
                 "nodes_expanded": nodes_expanded,
-                "cost": node.cost,  # O custo é igual à profundidade neste caso
+                "cost": node.cost,  
                 "time": time.time() - start_time,
                 "status": "Success"
             }
 
         expand_border(node, visited, border)
 
-    # Se a fronteira esvaziar e não achar solução
     return {
         "success": False,
         "nodes_expanded": nodes_expanded,

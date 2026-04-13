@@ -2,7 +2,7 @@ import numpy as np
 import time
 from board import is_goal_state, movement_allowed, get_next_state
 
-
+# Gera todos os estados vizinhos possíveis
 def get_neighbors_with_actions(state):
     neighbors = []
     row, col = np.where(state == 0)
@@ -16,6 +16,7 @@ def get_neighbors_with_actions(state):
     return neighbors
 
 
+# Busca em Profundidade
 def depth_first_search(initial_state, max_depth=50, max_time=60, max_iterations=1000000):
     start_time = time.time()
     stack = [(initial_state, 0)]

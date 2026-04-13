@@ -14,7 +14,6 @@ TEMPO_MAXIMO = 30  # Segundos por algoritmo
 ITERACOES_MAXIMAS = 1000000  # Limite de nós expandidos
 PROFUNDIDADE_DFS = 200  # Limite para a DFS não afundar infinitamente
 
-# Dicionário para armazenar as estatísticas consolidadas
 estatisticas = {
     nivel: {
         'BFS': {'sucessos': 0, 'nos': [], 'custo': [], 'tempo': []},
@@ -86,7 +85,6 @@ for passos in NIVEIS_DIFICULDADE:
         dados = estatisticas[passos][alg]
         taxa_sucesso = (dados['sucessos'] / TENTATIVAS_POR_NIVEL) * 100
 
-        # Calcula as médias apenas se houver pelo menos 1 sucesso
         if dados['sucessos'] > 0:
             media_nos = sum(dados['nos']) / dados['sucessos']
             media_custo = sum(dados['custo']) / dados['sucessos']
